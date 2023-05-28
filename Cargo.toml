@@ -14,6 +14,7 @@ jaq-std = { git = "https://github.com/01mf02/jaq.git" }
 serde_json = "1.0.96"
 rayon = "1.7.0"
 memmap = "0.7.0"
+jql-runner = "6.0.8"
 
 [dev-dependencies]
 anyhow = "1"

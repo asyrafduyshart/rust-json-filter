@@ -221,6 +221,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "jql-parser"
+version = "6.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc4c9814e2dabae4953af2d477785ece691c809fa8992e86c660feab0a1848ef"
+dependencies = [
+ "nom",
+ "thiserror",
+]
+
+[[package]]
+name = "jql-runner"
+version = "6.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2eaed0b2030e40faae6eec99c46e31ff427f43431f7d1e8154f2da873f99352f"
+dependencies = [
+ "jql-parser",
+ "rayon",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.144"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -271,6 +293,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
 name = "mio"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -280,6 +308,16 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.45.0",
+]
+
+[[package]]
+name = "nom"
+version = "7.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
 ]
 
 [[package]]
@@ -400,6 +438,7 @@ dependencies = [
  "anyhow",
  "jaq-core",
  "jaq-std",
+ "jql-runner",
  "memmap",
  "rayon",
  "serde_json",
@@ -445,6 +484,7 @@ version = "1.0.96"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "057d394a50403bcac12672b2b18fb387ab6d289d957dab67dd201875391e52f1"
 dependencies = [
+ "indexmap",
  "itoa",
  "ryu",
  "serde",
