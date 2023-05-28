@@ -1,0 +1,4 @@
+/target
+input.json
+output.json
+filters.jq

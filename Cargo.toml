@@ -1,0 +1,19 @@
+[package]
+name = "rust-active-filter"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+thiserror = "1"
+jaq-core = { git = "https://github.com/01mf02/jaq.git" }
+jaq-std = { git = "https://github.com/01mf02/jaq.git" }
+
+serde_json = "1.0.96"
+rayon = "1.7.0"
+memmap = "0.7.0"
+
+[dev-dependencies]
+anyhow = "1"
