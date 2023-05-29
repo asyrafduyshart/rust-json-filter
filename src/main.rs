@@ -27,7 +27,7 @@ use memmap::Mmap;
 fn main() -> Result<()> {
 	let start = Instant::now();
 
-	let file = File::open("input_test.json")?;
+	let file = File::open("input.json")?;
 	let mmap = unsafe { Mmap::map(&file)? };
 
 	let filters_file = File::open("filters.jq")?;
