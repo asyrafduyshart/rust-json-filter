@@ -51,8 +51,12 @@ fn main() -> Result<()> {
 			if filter_string.starts_with("@filter=") {
 				// remove the @filter= part
 				let filter_string = &filter_string[8..];
-				let filters = filter::parse(filter_string).expect("Unable to parse filters");
-				Some(filters)
+				let filters = filter::parse(filter_string);
+				if filters.is_none() {
+					println!("Unable to parse filter: {}", filter_string);
+					return None;
+				}
+				Some(filters.unwrap())
 			} else {
 				None
 			}
@@ -72,13 +76,13 @@ fn main() -> Result<()> {
 			if filter::apply(&v, filters) {
 				// println!("Filter matched");
 				successful_filters.fetch_add(1, Ordering::Relaxed);
-				let mut file = output_file.lock().unwrap();
-				writeln!(file, "{}", v).unwrap();
+				// let mut file = output_file.lock().unwrap();
+				// writeln!(file, "{}", v).unwrap();
 			}
 		});
 	});
 
-	print!("Done filtering\n");
+	println!("Done filtering");
 
 	let duration = start.elapsed();
 	let duration_in_seconds = duration.as_secs() as f64 + duration.subsec_nanos() as f64 * 1e-9;
