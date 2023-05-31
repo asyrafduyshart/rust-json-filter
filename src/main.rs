@@ -1,4 +1,4 @@
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 use prelude::*;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
@@ -45,18 +45,20 @@ fn main() -> Result<()> {
 	let data = std::str::from_utf8(&mmap[..]).expect("File data is not valid UTF-8");
 	let lines: Vec<String> = data.lines().map(String::from).collect();
 
-	println!("Starting to filter {} lines", lines.len());
-
-	let filters = filter_strings.iter().map(|filter_string| {
-		if filter_string.starts_with("@filter=") {
-			// remove the @filter= part
-			let filter_string = &filter_string[8..];
-			let filters = filter::parse(filter_string).expect("Unable to parse filters");
-			Some(filters)
-		} else {
-			None
-		}
-	});
+	let filters = filter_strings
+		.iter()
+		.map(|filter_string| {
+			if filter_string.starts_with("@filter=") {
+				// remove the @filter= part
+				let filter_string = &filter_string[8..];
+				let filters = filter::parse(filter_string).expect("Unable to parse filters");
+				Some(filters)
+			} else {
+				None
+			}
+		})
+		.filter(|v| v.is_some())
+		.map(|v| v.unwrap());
 
 	let filters: Vec<_> = filters.collect();
 	let filters = Arc::new(filters);
@@ -66,17 +68,14 @@ fn main() -> Result<()> {
 		let v: Value = serde_json::from_str(&line).expect("Unable to parse JSON");
 		//TODO: Add Primary filter
 
-		// this now gives us access to filters in the closure
-		for filter_option in filters.iter() {
-			if let Some(filter) = filter_option {
-				if filter::apply(&v, filter) {
-					println!("Filter matched");
-					successful_filters.fetch_add(1, Ordering::Relaxed);
-					let mut file = output_file.lock().unwrap();
-					writeln!(file, "{}", v).unwrap();
-				}
+		filters.par_iter().for_each(|filters| {
+			if filter::apply(&v, filters) {
+				// println!("Filter matched");
+				successful_filters.fetch_add(1, Ordering::Relaxed);
+				let mut file = output_file.lock().unwrap();
+				writeln!(file, "{}", v).unwrap();
 			}
-		}
+		});
 	});
 
 	print!("Done filtering\n");
