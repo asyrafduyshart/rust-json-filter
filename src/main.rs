@@ -1,5 +1,6 @@
 #![allow(unused)] // For beginning only.
 
+use gjson::Value;
 use prelude::*;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use std::{
@@ -10,8 +11,6 @@ use std::{
 		Arc, Mutex,
 	},
 };
-
-use serde_json::Value;
 
 mod error;
 mod filters;
@@ -45,41 +44,29 @@ fn main() -> Result<()> {
 	let data = std::str::from_utf8(&mmap[..]).expect("File data is not valid UTF-8");
 	let lines: Vec<String> = data.lines().map(String::from).collect();
 
-	let filters = filter_strings
-		.iter()
-		.map(|filter_string| {
-			if filter_string.starts_with("@filter=") {
-				// remove the @filter= part
-				let filter_string = &filter_string[8..];
-				let filters = filter::parse(filter_string);
-				if filters.is_none() {
-					println!("Unable to parse filter: {}", filter_string);
-					return None;
-				}
-				Some(filters.unwrap())
-			} else {
-				None
-			}
-		})
-		.filter(|v| v.is_some())
-		.map(|v| v.unwrap());
-
-	let filters: Vec<_> = filters.collect();
-	let filters = Arc::new(filters);
-
 	lines.par_iter().for_each(|line| {
 		total_lines.fetch_add(1, Ordering::Relaxed);
-		let v: Value = serde_json::from_str(&line).expect("Unable to parse JSON");
-		//TODO: Add Primary filter
+		filter_strings.par_iter().for_each(|filter| {
+			let mut buffer: Value = Value::default(); // or however you initialize Value
+			let filters: Vec<&str> = filter.split("AND").collect();
+			let filters_str: Vec<&str> = filters.iter().map(|s| &s[..]).collect();
 
-		filters.par_iter().for_each(|filters| {
-			if filter::apply(&v, filters) {
-				// println!("Filter matched");
-				successful_filters.fetch_add(1, Ordering::Relaxed);
-				// let mut file = output_file.lock().unwrap();
-				// writeln!(file, "{}", v).unwrap();
-			}
-		});
+			let result = filter::apply(line, filters_str.as_slice());
+			println!("filter {:?} === {:?}", filters_str, result);
+			// result.array().iter().for_each(|el| {
+			// 	println!("{}", el);
+			// 	let mut output_file = output_file.lock().unwrap();
+			// 	output_file.write_all(el.to_string().as_bytes()).unwrap();
+			// 	output_file.write_all(b"\n").unwrap();
+			// 	successful_filters.fetch_add(1, Ordering::Relaxed);
+			// });
+			// if result {
+			// 	let mut output_file = output_file.lock().unwrap();
+			// 	output_file.write_all(line.as_bytes()).unwrap();
+			// 	output_file.write_all(b"\n").unwrap();
+			// 	successful_filters.fetch_add(1, Ordering::Relaxed);
+			// }
+		})
 	});
 
 	println!("Done filtering");

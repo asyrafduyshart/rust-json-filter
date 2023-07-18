@@ -10,11 +10,10 @@ tokio = { version = "1", features = ["full"] }
 thiserror = "1"
 jaq-core = { git = "https://github.com/01mf02/jaq.git" }
 jaq-std = { git = "https://github.com/01mf02/jaq.git" }
-
-serde_json = "1.0.96"
 rayon = "1.7.0"
 memmap = "0.7.0"
-jql-runner = "6.0.8"
+jql-runner = "7.0.1"
+gjson = "0.8.1"
 
 [dev-dependencies]
 anyhow = "1"
