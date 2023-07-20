@@ -74,7 +74,7 @@ fn main() -> Result<()> {
 
 		filters.par_iter().for_each(|filters| {
 			if filter::apply(&v, filters) {
-				// println!("Filter matched");
+				println!("Filter matched");
 				successful_filters.fetch_add(1, Ordering::Relaxed);
 				// let mut file = output_file.lock().unwrap();
 				// writeln!(file, "{}", v).unwrap();
